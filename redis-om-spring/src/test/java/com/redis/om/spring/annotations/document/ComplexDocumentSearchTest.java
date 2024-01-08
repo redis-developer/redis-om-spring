@@ -34,6 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertAll;
   ComplexRepository complexRepository;
 
   @Autowired
+  ScheduledRepository scheduledRepository;
+
+  @Autowired
   EntityStream es;
 
   @BeforeEach
@@ -361,5 +364,56 @@ import static org.junit.jupiter.api.Assertions.assertAll;
         () -> assertThat(withTaradiddle.size()).isEqualTo(2), //
         () -> assertThat(withTaradiddle).extracting("id").containsExactlyInAnyOrder("complex2", "complex3") //
     );
+  }
+
+  @Test
+  void testValidFilterMatch() {
+    int startOf2022 = 1;
+    int endOf2022 = 2;
+    int startOf2023 = 3;
+    int endOf2023 = 5;
+    int mid2023 = 4;
+
+    Scheduled scheduled1 = Scheduled.of(
+            "1",
+            List.of(
+                    Filter.of(
+                            1L,
+                            startOf2023,
+                            endOf2023,
+                            "admin",
+                            "role"
+                    ),
+                    Filter.of(
+                            2L,
+                            startOf2022,
+                            endOf2022,
+                            "user",
+                            "role"
+                    )
+            ));
+    Scheduled scheduled2 = Scheduled.of(
+            "2",
+            List.of(
+                    Filter.of(
+                            3L,
+                            startOf2023,
+                            endOf2023,
+                            "user",
+                            "role"
+                    )
+            ));
+
+    scheduledRepository.save(scheduled1);
+    scheduledRepository.save(scheduled2);
+
+    List<Scheduled> adminRolesValidAtTime = es.of(Scheduled.class)
+            .filter(Scheduled$.FILTERS.VALID_FROM.lt(mid2023))
+            .filter(Scheduled$.FILTERS.TYPE.equals("role"))
+            .filter(Scheduled$.FILTERS.VALUE.equals("admin"))
+            .collect(Collectors.toList());
+
+    assertThat(adminRolesValidAtTime.size()).isEqualTo(1);
+
   }
 }
