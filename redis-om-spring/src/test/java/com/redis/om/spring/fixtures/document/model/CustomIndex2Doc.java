@@ -1,6 +1,7 @@
 package com.redis.om.spring.fixtures.document.model;
 
 import com.redis.om.spring.annotations.Document;
+import com.redis.om.spring.annotations.IndexCreationMode;
 import com.redis.om.spring.annotations.IndexingOptions;
 import com.redis.om.spring.annotations.Searchable;
 import lombok.*;
@@ -10,9 +11,9 @@ import org.springframework.data.annotation.Id;
 @RequiredArgsConstructor(staticName = "of")
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(force = true)
-@IndexingOptions(indexName = "MyCustomDocIndex")
-@Document(value = "MyCustomPrefix")
-public class CustomIndexDoc {
+@IndexingOptions(indexName = "ci2", creationMode = IndexCreationMode.SKIP_IF_EXIST)
+@Document(value = "cp2")
+public class CustomIndex2Doc {
   @Id
   private String id;
 

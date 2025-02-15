@@ -109,9 +109,8 @@ public class RediSearchIndexer {
         // IndexingOptions overrides Document#
         if (maybeIndexingOptions.isPresent()) {
           indexName = maybeIndexingOptions.get().indexName();
-        } else {
-          indexName = document.get().indexName();
         }
+        indexName = indexName.isBlank() ? document.get().indexName() : indexName;
         indexName = indexName.isBlank() ? cl.getName() + "Idx" : indexName;
       } else {
         if (maybeIndexingOptions.isPresent()) {

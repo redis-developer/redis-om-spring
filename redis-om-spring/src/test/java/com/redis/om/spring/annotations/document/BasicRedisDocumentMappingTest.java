@@ -56,6 +56,9 @@ class BasicRedisDocumentMappingTest extends AbstractBaseDocumentTest {
   CustomIndexDocRepository customIndexDocRepository;
 
   @Autowired
+  CustomIndex2DocRepository customIndex2DocRepository;
+
+  @Autowired
   TypeKitchenSinkRepository typeKitchenSinkRepository;
 
   @Autowired
@@ -823,7 +826,23 @@ class BasicRedisDocumentMappingTest extends AbstractBaseDocumentTest {
   void testCustomIndexName() {
     // CustomIndexDoc has a custom index name defined in the @Document annotation
     var indices = jedis.ftList();
-    assertThat(indices).contains("MyCustomIndex");
+    assertThat(indices).contains("MyCustomDocIndex");
+  }
+
+  @Test
+  void testCustomIndexAndCustomPrefixWithIndexingOptions() {
+    CustomIndex2Doc cih2 = customIndex2DocRepository.save(CustomIndex2Doc.of("AAA", "BBB"));
+    String key = customIndex2DocRepository.getKeyFor(cih2); // prefix should be `cp2`
+    assertThat(key).startsWith("cp2:");
+    var indices = jedis.ftList();
+    assertThat(indices).contains("ci2");
+  }
+
+  @Test
+  void testCustomIndexAndCustomPrefix() {
+    CustomIndexDoc cih = customIndexDocRepository.save(CustomIndexDoc.of("AAA", "BBB"));
+    String key = customIndexDocRepository.getKeyFor(cih); // prefix should be `MyCustomPrefix`
+    assertThat(key).startsWith("MyCustomPrefix:");
   }
 
   //customIndexDocRepository
